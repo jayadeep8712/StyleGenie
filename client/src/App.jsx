@@ -6,6 +6,8 @@ import CanvasOverlay from './components/CanvasOverlay';
 import RecommendationCard from './components/RecommendationCard';
 import HairstyleGallery from './components/HairstyleGallery';
 import FloatingStickers from './components/FloatingStickers';
+import Footer from './components/Footer';
+import ScrollToTop from './components/ScrollToTop';
 import { Button } from './components/ui/button';
 import { analyzeFace } from './services/apiService';
 import './index.css';
@@ -493,6 +495,12 @@ function App() {
                     </>
                 )}
             </main>
+
+            {/* Footer */}
+            <Footer />
+
+            {/* Scroll to Top Button */}
+            <ScrollToTop />
         </div>
     );
 }
