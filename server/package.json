@@ -1,0 +1,28 @@
+{
+    "name": "stylegenie-server",
+    "version": "1.0.0",
+    "description": "Backend API for StyleGenie AI-powered virtual stylist",
+    "main": "index.js",
+    "type": "module",
+    "scripts": {
+        "start": "node index.js",
+        "dev": "node --watch index.js"
+    },
+    "keywords": [
+        "ai",
+        "gemini",
+        "hairstyle",
+        "virtual-stylist"
+    ],
+    "author": "",
+    "license": "MIT",
+    "dependencies": {
+        "@google/generative-ai": "^0.21.0",
+        "@supabase/supabase-js": "^2.48.1",
+        "cors": "^2.8.5",
+        "dotenv": "^16.4.7",
+        "express": "^4.21.2",
+        "multer": "^1.4.5-lts.1",
+        "node-fetch": "^3.3.2"
+    }
+}
