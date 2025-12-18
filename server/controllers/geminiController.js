@@ -19,6 +19,7 @@ export async function analyzeFaceController(req, res) {
     let clothingSuggestion = "Classic styles work well.";
     let isRealAI = false;
     let selectedRecommendations = [];
+    let aiData = null; // Declare here to avoid scope issues
 
     console.log('--- STARTING FACE ANALYSIS ---');
 
@@ -119,7 +120,7 @@ export async function analyzeFaceController(req, res) {
 
             // Clean Markdown
             const cleanedText = text.replace(/```json/g, '').replace(/```/g, '').trim();
-            const aiData = JSON.parse(cleanedText);
+            aiData = JSON.parse(cleanedText);
 
             console.log("🤖 AI Raw Result:", aiData);
 

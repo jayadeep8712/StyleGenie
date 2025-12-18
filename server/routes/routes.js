@@ -1,6 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 import { analyzeFaceController } from '../controllers/geminiController.js';
+import { chatController } from '../controllers/chatController.js';
 
 const router = express.Router();
 
@@ -67,5 +68,12 @@ router.get('/hairstyles', async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch hairstyles' });
     }
 });
+
+/**
+ * POST /chat
+ * Chat with the StyleGenie AI assistant
+ * Supports optional image upload for styling analysis
+ */
+router.post('/chat', upload.single('image'), chatController);
 
 export default router;

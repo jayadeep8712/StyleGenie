@@ -97,3 +97,47 @@ export const calculateFaceShape = (landmarks, width, height) => {
         reasoning: reasoning[0] || 'Balanced features detected.'
     };
 };
+
+/**
+ * Estimates gender based on facial feature ratios (Heuristic)
+ * @param {Object} landmarks
+ * @param {number} width
+ * @param {number} height
+ * @returns {Object} { gender, score, confidence }
+ */
+export const calculateGender = (landmarks, width, height) => {
+    if (!landmarks || landmarks.length === 0) return { gender: 'Unknown', score: 0 };
+
+    // 1. Jaw Width (58-288) vs Cheek Width (234-454)
+    // Men have wider jaws relative to cheeks.
+    const jawWidth = getDistance(landmarks[58], landmarks[288], width, height);
+    const cheekWidth = getDistance(landmarks[234], landmarks[454], width, height);
+    const jawCheekRatio = jawWidth / cheekWidth;
+
+    // 2. Lip Fullness (Top 13 - Bottom 14) vs Mouth Width (61-291)
+    // Women often have fuller lips relative to mouth width.
+    const lipHeight = getDistance(landmarks[13], landmarks[14], width, height);
+    const mouthWidth = getDistance(landmarks[61], landmarks[291], width, height);
+    const lipRatio = lipHeight / mouthWidth;
+
+    // Scoring
+    let score = 0; // + = Male, - = Female
+
+    // Jaw Logic
+    if (jawCheekRatio > 0.92) score += 3;       // Strong male jaw
+    else if (jawCheekRatio > 0.88) score += 1;  // Leaning male
+    else if (jawCheekRatio < 0.82) score -= 1;  // Leaning female
+
+    // Lip Logic
+    if (lipRatio > 0.35) score -= 3;            // Very full lips (Female)
+    else if (lipRatio > 0.25) score -= 1;       // Full lips
+    else if (lipRatio < 0.15) score += 2;       // Thin lips (Male)
+
+    const gender = score >= 0 ? 'Male' : 'Female';
+
+    return {
+        gender,
+        score,
+        metrics: { jawCheekRatio: jawCheekRatio.toFixed(2), lipRatio: lipRatio.toFixed(2) }
+    };
+};

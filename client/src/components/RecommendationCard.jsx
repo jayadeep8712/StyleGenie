@@ -74,8 +74,8 @@ const RecommendationCard = ({ recommendations, selectedIndex, onSelect }) => {
                                 {/* Button */}
                                 <Button
                                     className={`w-full mt-4 font-bold tracking-wide ${selectedIndex === index
-                                            ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-md'
-                                            : 'bg-white hover:bg-slate-50 text-slate-600 border-2 border-slate-200'
+                                        ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-md'
+                                        : 'bg-white hover:bg-slate-50 text-slate-600 border-2 border-slate-200'
                                         }`}
                                     onClick={(e) => {
                                         e.stopPropagation();

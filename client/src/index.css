@@ -184,3 +184,25 @@
 .animate-float-fast {
     animation: float 3s ease-in-out infinite;
 }
+
+@keyframes sway {
+
+    0%,
+    100% {
+        transform: rotate(-2deg);
+    }
+
+    50% {
+        transform: rotate(2deg);
+    }
+}
+
+.animate-sway {
+    animation: sway 6s ease-in-out infinite;
+    transform-origin: top center;
+}
+
+.animate-sway-slow {
+    animation: sway 8s ease-in-out infinite reverse;
+    transform-origin: top center;
+}

@@ -1,7 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Upload, Image as ImageIcon } from 'lucide-react';
-import { Button } from './ui/button';
-import { Card, CardContent } from './ui/card';
+import { Image as ImageIcon, Camera } from 'lucide-react';
 
 const ImageUpload = ({ onImageSelect, isProcessing }) => {
     const [preview, setPreview] = useState(null);
@@ -38,7 +36,6 @@ const ImageUpload = ({ onImageSelect, isProcessing }) => {
         e.preventDefault();
         e.stopPropagation();
         setDragActive(false);
-
         const file = e.dataTransfer.files?.[0];
         if (file) handleFileChange(file);
     };
@@ -48,18 +45,22 @@ const ImageUpload = ({ onImageSelect, isProcessing }) => {
     };
 
     return (
-        <Card className="w-full">
-            <CardContent className="p-6">
+        <div className="relative max-w-md mx-auto">
+            {/* Simple Washi Tape Top Center */}
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-32 h-8 bg-yellow-200/80 rotate-1 z-10 shadow-sm"></div>
+
+            {/* Main Polaroid-style Card */}
+            <div className="bg-white p-4 pt-8 pb-8 rounded-sm shadow-xl transform -rotate-1 transition-transform hover:rotate-0 hover:shadow-2xl">
+
                 <div
-                    className={`relative border-4 border-dashed rounded-2xl p-8 transition-all duration-300 ${dragActive
-                        ? 'border-indigo-400 bg-indigo-50 scale-[1.02] rotate-1'
-                        : 'border-indigo-200 bg-slate-50/50 hover:border-indigo-300 hover:bg-slate-50'
-                        } ${isProcessing ? 'opacity-50 pointer-events-none' : 'cursor-pointer group'}`}
+                    className={`relative border-2 border-dashed rounded-lg p-8 transition-colors duration-150 flex flex-col items-center justify-center gap-6
+                        ${dragActive ? 'border-indigo-400 bg-indigo-50' : 'border-slate-300 bg-slate-50 hover:bg-slate-100'}
+                        ${isProcessing ? 'opacity-60 pointer-events-none' : ''}`}
                     onDragEnter={handleDrag}
                     onDragLeave={handleDrag}
                     onDragOver={handleDrag}
                     onDrop={handleDrop}
-                    onClick={handleClick}
+                    style={{ minHeight: '300px' }}
                 >
                     <input
                         ref={fileInputRef}
@@ -71,54 +72,56 @@ const ImageUpload = ({ onImageSelect, isProcessing }) => {
                     />
 
                     {preview ? (
-                        <div className="flex flex-col items-center gap-6">
-                            <div className="relative w-full max-w-md aspect-square rounded-xl overflow-hidden shadow-lg border-4 border-white rotate-2 transform hover:rotate-0 transition-transform duration-500">
+                        <div className="flex flex-col items-center gap-4 w-full">
+                            <div className="relative bg-white p-2 shadow-md rotate-1">
                                 <img
                                     src={preview}
                                     alt="Preview"
-                                    className="w-full h-full object-cover"
+                                    className="w-full max-w-[200px] aspect-square object-cover"
                                 />
                             </div>
-                            <Button
-                                variant="outline"
-                                size="sm"
+                            <button
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     setPreview(null);
                                     onImageSelect(null, null);
                                 }}
+                                className="text-sm text-indigo-600 underline font-hand text-lg hover:text-indigo-800"
                                 disabled={isProcessing}
-                                className="rounded-full border-2 border-slate-200 hover:border-indigo-300 hover:text-indigo-600 font-bold"
                             >
-                                <Upload className="mr-2 h-4 w-4" />
-                                Upload Different Image
-                            </Button>
+                                Choose another photo
+                            </button>
                         </div>
                     ) : (
-                        <div className="flex flex-col items-center gap-6 text-center py-4">
-                            <div className="p-5 rounded-full bg-indigo-100 text-indigo-500 shadow-sm transform -rotate-6 group-hover:rotate-6 transition-transform duration-300 border-4 border-white">
-                                <ImageIcon className="h-10 w-10" />
+                        <>
+                            <div className="bg-white p-4 rounded-full shadow-sm border border-slate-200">
+                                <ImageIcon className="w-10 h-10 text-slate-400" />
                             </div>
-                            <div className="space-y-1">
-                                <p className="text-3xl font-bold font-hand text-slate-700 tracking-wide rotate-1">
-                                    Upload Your Selfie
-                                </p>
-                                <p className="text-sm font-medium text-slate-500">
-                                    Drag and drop or click to browse
-                                </p>
+
+                            <div className="text-center space-y-1">
+                                <h3 className="font-hand text-2xl font-bold text-slate-700">Upload Selfie</h3>
+                                <p className="text-sm text-slate-500 font-medium">Drag & drop or tap to browse</p>
                             </div>
-                            <Button variant="default" size="lg" type="button" className="rounded-full bg-indigo-600 hover:bg-indigo-700 font-bold shadow-md hover:scale-105 transition-transform">
-                                <Upload className="mr-2 h-5 w-5" />
-                                Pick a Photo
-                            </Button>
-                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest pt-2 opacity-60">
-                                JPG, PNG, WEBP (Max 10MB)
-                            </p>
-                        </div>
+
+                            {/* Simple Action Button */}
+                            <button
+                                type="button"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    fileInputRef.current?.click();
+                                }}
+                                className="px-6 py-2 bg-indigo-600 text-white rounded-md font-hand text-lg shadow-md hover:bg-indigo-700 active:bg-indigo-800 transition-colors cursor-pointer flex items-center gap-2"
+                            >
+                                <Camera className="w-4 h-4" />
+                                <span>Pick Photo</span>
+                            </button>
+
+                            <p className="text-xs text-slate-400 mt-2">JPG, PNG • Max 10MB</p>
+                        </>
                     )}
                 </div>
-            </CardContent>
-        </Card>
+            </div>
+        </div>
     );
 };
 

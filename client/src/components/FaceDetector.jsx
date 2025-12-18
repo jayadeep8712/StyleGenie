@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { FilesetResolver, FaceLandmarker } from '@mediapipe/tasks-vision';
-import { calculateFaceShape } from '../lib/faceMath'; // Import Math Utility
+import { calculateFaceShape, calculateGender } from '../lib/faceMath'; // Import Math Utility
 
 /**
  * FaceDetector Component (Restored Real Implementation)
@@ -10,10 +10,15 @@ import { calculateFaceShape } from '../lib/faceMath'; // Import Math Utility
 const FaceDetector = ({ imageData, onLandmarksDetected, onError }) => {
     const [isLoading, setIsLoading] = useState(true);
     const faceLandmarkerRef = useRef(null);
+    const hasDetectedRef = useRef(false); // Prevent multiple detections
+    const isInitializingRef = useRef(false); // Prevent double init in StrictMode
 
     // Initialize MediaPipe Face Landmarker
     useEffect(() => {
         const initializeFaceLandmarker = async () => {
+            if (isInitializingRef.current || faceLandmarkerRef.current) return;
+            isInitializingRef.current = true;
+
             try {
                 console.log('Initializing MediaPipe Face Landmarker...');
 
@@ -35,19 +40,23 @@ const FaceDetector = ({ imageData, onLandmarksDetected, onError }) => {
                 setIsLoading(false);
             } catch (error) {
                 console.error('Failed to initialize Face Landmarker:', error);
+                isInitializingRef.current = false;
                 onError?.('Failed to load face detector. Please refresh and try again.');
                 setIsLoading(false);
             }
         };
 
-        if (!faceLandmarkerRef.current) {
-            initializeFaceLandmarker();
-        }
-    }, [onError]);
+        initializeFaceLandmarker();
+    }, []);
+
+    // Reset detection flag when image changes
+    useEffect(() => {
+        hasDetectedRef.current = false;
+    }, [imageData]);
 
     // Detect faces when image changes
     useEffect(() => {
-        if (!imageData || !faceLandmarkerRef.current || isLoading) return;
+        if (!imageData || !faceLandmarkerRef.current || isLoading || hasDetectedRef.current) return;
 
         const detectFace = async () => {
             try {
@@ -55,11 +64,12 @@ const FaceDetector = ({ imageData, onLandmarksDetected, onError }) => {
                 const image = new Image();
 
                 image.onload = () => {
-                    if (!faceLandmarkerRef.current) return;
+                    if (!faceLandmarkerRef.current || hasDetectedRef.current) return;
 
                     const results = faceLandmarkerRef.current.detect(image);
 
                     if (results.faceLandmarks && results.faceLandmarks.length > 0) {
+                        hasDetectedRef.current = true; // Mark as detected
                         console.log('Face detected!');
                         const landmarks = results.faceLandmarks[0];
 
@@ -67,9 +77,15 @@ const FaceDetector = ({ imageData, onLandmarksDetected, onError }) => {
                         // MediaPipe Face Mesh Keypoints:
                         // 10: Top of forehead, 152: Chin, 234: Left cheek, 454: Right cheek
 
-                        // NEW: Calculate Face Geometry
+                        // NEW: Calculate Face Geometry & Gender
                         const geometry = calculateFaceShape(landmarks, image.width, image.height);
+                        const genderAnalysis = calculateGender(landmarks, image.width, image.height);
                         console.log('Calculated Face Geometry:', geometry);
+                        console.log('Estimated Gender:', genderAnalysis);
+
+                        // Merge for passing up
+                        geometry.gender = genderAnalysis.gender;
+                        geometry.genderScore = genderAnalysis.score;
 
                         const landmarkData = {
                             forehead: {
@@ -109,9 +125,10 @@ const FaceDetector = ({ imageData, onLandmarksDetected, onError }) => {
         };
 
         detectFace();
-    }, [imageData, isLoading, onLandmarksDetected, onError]);
+    }, [imageData, isLoading]); // Removed callback deps to prevent loops
 
     return null; // Logic-only component
 };
 
 export default FaceDetector;
+
